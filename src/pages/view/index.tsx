@@ -24,6 +24,8 @@ const items = [
 
 const App: React.FC = () => {
   const navigate = useNavigate();
+  const location = window.location.pathname;
+  const selectedKey = items.findIndex(item => item.href === location) + 1;
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
@@ -38,7 +40,7 @@ const App: React.FC = () => {
           }}
           theme="dark"
           mode="horizontal"
-          defaultSelectedKeys={["1"]}
+          defaultSelectedKeys={[String(selectedKey)]}
           items={items}
           style={{ flex: 1, minWidth: 0 }}
         />

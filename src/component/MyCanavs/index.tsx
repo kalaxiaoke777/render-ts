@@ -1,35 +1,16 @@
-import React, { useEffect, useRef } from "react";
+import React from "react";
+import useCanvas from "@/hooks/MyCanvas/useCanvas";
 import styles from "./index.module.scss";
 
-const MyCanavs = () => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const contents = useRef<HTMLDivElement>(null);
+interface MyCanavsProps {
+  width: number;
+  height: number;
+}
 
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (canvas) {
-      console.log(
-        contents.current?.clientWidth,
-        contents.current?.clientHeight
-      );
-      canvas.width = contents.current?.clientWidth || 800;
-      canvas.height = contents.current?.clientHeight || 600;
-      const gl = canvas.getContext("webgl");
-    }
-  }, []);
-
+const MyCanavs: React.FC<MyCanavsProps> = ({ width, height }) => {
+  const canvasRef = useCanvas(width, height);
   return (
-    <div
-      ref={contents}
-      className={styles.Canvas}
-      style={{
-        border: "2px solid #1976d2",
-        borderRadius: "8px",
-        padding: "10px",
-      }}
-    >
-      <canvas ref={canvasRef} className={styles.webgl} id="webgl"></canvas>
-    </div>
+    <canvas ref={canvasRef} className={styles.webgl} id="webgl"></canvas>
   );
 };
 export default MyCanavs;

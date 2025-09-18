@@ -16,8 +16,9 @@ root.render(
       <Route path="/" element={<App />}>
         <Route path="webgl" element={<WebGL />}></Route>
         <Route path="webgpu" element={<WebGPU />}></Route>
-        <Route path="*" element={<Navigate to="/" replace />} />
+
       </Route>
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   </BrowserRouter>
 );
