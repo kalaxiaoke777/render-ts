@@ -8,29 +8,30 @@ const useCanvas = (width: number, height: number) => {
       canvas.width = width;
       canvas.height = height;
       const ctx = canvas.getContext("2d");
-      if (ctx) {
-        
-        // 绘制红色矩形
-        ctx.fillStyle = "red";
-        ctx.fillRect(50, 50, 200, 100);
-        
-        // 绘制蓝色边框矩形
-        ctx.strokeStyle = "blue";
-        ctx.lineWidth = 2;
-        ctx.strokeRect(300, 200, 150, 150);
-        
-        // 绘制绿色圆形
-        ctx.beginPath();
-        ctx.arc(400, 100, 50, 0, Math.PI * 2);
-        ctx.fillStyle = "green";
-        ctx.fill();
-        
-        console.log('Canvas drawing completed', { width, height });
-      }
+      let x = 0;
+      const y = 50;
+      const rectWidth = 200;
+      const rectHeight = 100;
+      let animationFrameId: number;
+
+      const draw = () => {
+        ctx!.clearRect(0, 0, width, height);
+        ctx!.fillStyle = "red";
+        ctx!.fillRect(x, y, rectWidth, rectHeight);
+        x += 2;
+        if (x > width) x = -rectWidth;
+        animationFrameId = requestAnimationFrame(draw);
+      };
+
+      draw();
+
+      return () => {
+        cancelAnimationFrame(animationFrameId);
+      };
     }
   }, [width, height]);
 
   return canvasRef;
-}
+};
 
 export default useCanvas;
