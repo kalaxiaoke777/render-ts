@@ -1,0 +1,14 @@
+@charset "UTF-8";
+.input {
+  position: absolute;
+  top: 80px;
+  left: 10px;
+  z-index: 10;
+}
+
+/* 覆盖 antd 内部类 */
+.input :global(.ant-upload-select) {
+  border: 1px solid cadetblue;
+  border-radius: 10px;
+  background-color: red;
+}

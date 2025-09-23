@@ -1,6 +1,7 @@
 import { useRef, useEffect, useState } from "react";
 import styles from "./index.module.scss";
 import MyCanavs from "@/component/MyCanavs";
+import InputFile from "@/component/inputFiles";
 
 const WebGL = () => {
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -21,6 +22,7 @@ const WebGL = () => {
   return (
     <div ref={canvasRef} className={styles.app}>
       <MyCanavs width={size.width - 5} height={size.height - 8}></MyCanavs>
+      <InputFile></InputFile>
     </div>
   );
 };
