@@ -1,10 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import CanvasTools from "@/utils/canvasTools/canvasTool";
 import type { DrawPointOption, DrawLineOption } from "@/types/global";
+
 const useCanvas = (width: number, height: number) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [points, setPoints] = useState([] as DrawPointOption[]);
-  const [lines, setLines] = useState([] as DrawLineOption[]);
+  const [points, setPoints] = useState<DrawPointOption[]>([]);
+  const [lines, setLines] = useState<DrawLineOption[]>([]);
+
+  // 只在初始化时设置一次点和线
   useEffect(() => {
     setPoints([
       {
@@ -54,14 +57,14 @@ const useCanvas = (width: number, height: number) => {
         fillSize: 5,
       },
     ]);
-  });
+  }, []); // 依赖为空数组，只执行一次
+
   useEffect(() => {
     const canvas = canvasRef.current;
-
     if (canvas) {
       canvas.width = width;
       canvas.height = height;
-      const canvasTools = new CanvasTools(canvas!);
+      const canvasTools = new CanvasTools(canvas);
       // canvasTools.drawPoint(points);
       // canvasTools.drawLine(lines);
     }

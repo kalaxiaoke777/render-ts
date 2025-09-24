@@ -25,7 +25,7 @@ const items = [
 const App: React.FC = () => {
   const navigate = useNavigate();
   const location = window.location.pathname;
-  const selectedKey = items.findIndex(item => item.href === location) + 1;
+  const selectedKey = items.findIndex((item) => item.href === location) + 1;
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
@@ -51,7 +51,7 @@ const App: React.FC = () => {
             minHeight: "calc(100vh - 200px)",
           }}
         >
-          <Outlet />
+          <Outlet key={location} />
         </div>
       </Content>
     </Layout>

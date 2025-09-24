@@ -6,6 +6,7 @@ import InputFile from "@/component/inputFiles";
 const WebGL = () => {
   const canvasRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ width: 600, height: 600 });
+  const [showCanvas, setShowCanvas] = useState(false);
 
   useEffect(() => {
     const handleResize = () => {
@@ -16,13 +17,20 @@ const WebGL = () => {
     };
     handleResize();
     window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    setShowCanvas(true); // 组件挂载
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      setShowCanvas(false); // 组件卸载
+    };
   }, []);
 
   return (
     <div ref={canvasRef} className={styles.app}>
-      <MyCanavs width={size.width - 5} height={size.height - 8}></MyCanavs>
-      <InputFile></InputFile>
+      <InputFile />
+      {showCanvas && (
+        <MyCanavs width={size.width - 5} height={size.height - 8} />
+      )}
     </div>
   );
 };
