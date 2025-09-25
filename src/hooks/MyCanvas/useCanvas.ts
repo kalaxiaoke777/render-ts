@@ -10,11 +10,10 @@ const useCanvas = (width: number, height: number, fileContent: string) => {
 
   // 只在初始化时设置一次点和线
   useEffect(() => {
-    console.log(fileContent);
 
     let objInstance = new Obj(fileContent);
     const projectionMat = [
-      [1, 0, 0, 0],
+      [0.5, 0, 0, 0],
       [0, 1, 0, 0],
       [0, 0, 1, 0],
       [0, 0, 0, 1],
@@ -32,6 +31,32 @@ const useCanvas = (width: number, height: number, fileContent: string) => {
       width,
       height
     );
+    // 根据obj中的f 绘制三角
+    const lineOptions: DrawLineOption[] = [];
+    
+objInstance.f.forEach((face) => {
+  const v = face.v;
+  if (v.length >= 3) {
+    const [p1, p2, p3] = v;
+    lineOptions.push(
+      {
+        coordinates: [screenCoords[p1], screenCoords[p2]],
+        color: "red",
+        fillSize: 1,
+      },
+      {
+        coordinates: [screenCoords[p2], screenCoords[p3]],
+        color: "red",
+        fillSize: 1,
+      },
+      {
+        coordinates: [screenCoords[p3], screenCoords[p1]],
+        color: "red",
+        fillSize: 1,
+      }
+    );
+  }
+});
     const pointOptions: DrawPointOption[] = screenCoords.map(([x, y]) => ({
       coordinate: [x, y],
       color: "red",
@@ -43,7 +68,8 @@ const useCanvas = (width: number, height: number, fileContent: string) => {
       canvas.width = width;
       canvas.height = height;
       const canvasTools = new CanvasTools(canvas);
-      canvasTools.drawPoint(pointOptions);
+      // canvasTools.drawPoint(pointOptions);
+      canvasTools.drawLine(lineOptions);
     }
   }, [fileContent]);
 
