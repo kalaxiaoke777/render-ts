@@ -7,6 +7,7 @@ const WebGL = () => {
   const canvasRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ width: 600, height: 600 });
   const [showCanvas, setShowCanvas] = useState(false);
+  const [fileContent, setFileContent] = useState<string>("");
 
   useEffect(() => {
     const handleResize = () => {
@@ -27,10 +28,12 @@ const WebGL = () => {
 
   return (
     <div ref={canvasRef} className={styles.app}>
-      <InputFile />
-      {showCanvas && (
-        <MyCanavs width={size.width - 5} height={size.height - 8} />
-      )}
+      <InputFile setFileContent={setFileContent} />
+      <MyCanavs
+        width={size.width - 5}
+        height={size.height - 8}
+        fileContent={fileContent}
+      />
     </div>
   );
 };

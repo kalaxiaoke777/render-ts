@@ -123,6 +123,48 @@ class Obj {
       faces: this.f.map((face) => face.v),
     };
   }
+  /**
+   * 将顶点坐标转换为屏幕坐标
+   * @param projectionMat 4x4 投影矩阵
+   * @param viewMat 4x4 视图矩阵
+   * @param width 屏幕宽度
+   * @param height 屏幕高度
+   * @returns 屏幕坐标数组 [x, y]
+   */
+  toScreenCoords(
+    projectionMat: number[][],
+    viewMat: number[][],
+    width: number,
+    height: number
+  ): [number, number][] {
+    // 4x4矩阵乘法
+    const multiplyMatVec = (mat: number[][], vec: number[]) => {
+      const res = [];
+      for (let i = 0; i < 4; i++) {
+        res[i] =
+          mat[i][0] * vec[0] +
+          mat[i][1] * vec[1] +
+          mat[i][2] * vec[2] +
+          mat[i][3] * vec[3];
+      }
+      return res;
+    };
+
+    return this.v.map(([x, y, z]) => {
+      // 齐次坐标
+      let vec = [x, y, z, 1];
+      // 视图变换
+      vec = multiplyMatVec(viewMat, vec);
+      // 投影变换
+      vec = multiplyMatVec(projectionMat, vec);
+      // 归一化
+      const ndc = vec.map((v) => v / vec[3]);
+      // 屏幕坐标
+      const sx = ((ndc[0] + 1) / 2) * width;
+      const sy = ((1 - ndc[1]) / 2) * height; // y轴反向
+      return [sx, sy];
+    });
+  }
 }
 
 export default Obj;
