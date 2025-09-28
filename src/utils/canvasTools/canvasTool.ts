@@ -1,4 +1,4 @@
-import type { DrawPointOption, DrawLineOption } from "./types";
+import type { DrawPointOption, DrawLineOption,DrawPolygonOption } from "./types";
 
 class CanvasTools {
   canvas_: HTMLCanvasElement;
@@ -34,6 +34,38 @@ class CanvasTools {
     });
   }
   drawRect() {}
+    /**
+   * 绘制多边形
+   * @param points 顶点坐标数组 [[x1, y1], [x2, y2], ...]
+   * @param color 线条颜色
+   * @param fill 是否填充
+   * @param fillColor 填充颜色
+   * @param lineWidth 线宽
+   */
+  drawPolygon(
+    points: [number, number][],
+    color: string = "black",
+    fill: boolean = false,
+    fillColor: string = "rgba(164, 180, 21, 0.1)",
+    lineWidth: number = 1
+  ): void {
+    if (!this.ctx || points.length < 3) return;
+    this.ctx.save();
+    this.ctx.beginPath();
+    this.ctx.moveTo(points[0][0], points[0][1]);
+    for (let i = 1; i < points.length; i++) {
+      this.ctx.lineTo(points[i][0], points[i][1]);
+    }
+    this.ctx.closePath();
+    this.ctx.strokeStyle = color;
+    this.ctx.lineWidth = lineWidth;
+    this.ctx.stroke();
+    if (fill) {
+      this.ctx.fillStyle = fillColor;
+      this.ctx.fill();
+    }
+    this.ctx.restore();
+  }
   drawPoint(points: DrawPointOption[]): void {
     if (!this.ctx) return;
 

@@ -8,3 +8,10 @@ export type DrawLineOption = {
   color?: string;
   fillSize?: number;
 };
+export type DrawPolygonOption = {
+  points: [number, number][];
+  color?: string;
+  fillSize?: number;
+  fill?: boolean;
+  fillStyle?: string;
+};

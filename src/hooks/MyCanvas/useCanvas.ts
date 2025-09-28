@@ -33,44 +33,34 @@ const useCanvas = (width: number, height: number, fileContent: string) => {
     );
     // 根据obj中的f 绘制三角
     const lineOptions: DrawLineOption[] = [];
-    
-objInstance.f.forEach((face) => {
-  const v = face.v;
-  if (v.length >= 3) {
-    const [p1, p2, p3] = v;
-    lineOptions.push(
-      {
-        coordinates: [screenCoords[p1], screenCoords[p2]],
-        color: "red",
-        fillSize: 1,
-      },
-      {
-        coordinates: [screenCoords[p2], screenCoords[p3]],
-        color: "red",
-        fillSize: 1,
-      },
-      {
-        coordinates: [screenCoords[p3], screenCoords[p1]],
-        color: "red",
-        fillSize: 1,
-      }
-    );
-  }
-});
-    const pointOptions: DrawPointOption[] = screenCoords.map(([x, y]) => ({
-      coordinate: [x, y],
-      color: "red",
-      size: 5,
-    }));
-    // setPoints(pointOptions);
     const canvas = canvasRef.current;
-    if (canvas) {
-      canvas.width = width;
-      canvas.height = height;
-      const canvasTools = new CanvasTools(canvas);
-      // canvasTools.drawPoint(pointOptions);
-      canvasTools.drawLine(lineOptions);
-    }
+    if (!canvas) return;
+    canvas.width = width;
+    canvas.height = height;
+    const canvasTools = new CanvasTools(canvas);
+    objInstance.f.forEach((face) => {
+      const v = face.v;
+      if (v.length >= 3) {
+        const [p1, p2, p3] = v;
+        lineOptions.push(
+
+        );
+        const canvas = canvasRef.current;
+        if (canvas) {
+          canvasTools.drawPolygon(
+            [
+              screenCoords[p1],
+              screenCoords[p2],
+              screenCoords[p3]
+            ],
+            "white",
+            true,
+            `white` // 随机填充色
+          );
+        }
+      }
+    });
+
   }, [fileContent]);
 
   useEffect(() => {
@@ -79,8 +69,6 @@ objInstance.f.forEach((face) => {
       canvas.width = width;
       canvas.height = height;
       const canvasTools = new CanvasTools(canvas);
-      // canvasTools.drawPoint(points);
-      // canvasTools.drawLine(lines);
     }
   }, [width, height, points, lines]);
 
