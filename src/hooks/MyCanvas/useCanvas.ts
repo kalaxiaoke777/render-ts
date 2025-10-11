@@ -1,28 +1,33 @@
-import { useEffect, useRef, useState } from "react";
+import { use, useEffect, useRef, useState } from "react";
 import CanvasTools from "@/utils/canvasTools/canvasTool";
 import type { DrawPointOption, DrawLineOption } from "@/types/global";
 import Obj from "@/utils/objTools/readObj";
 
 function dot(a: number[], b: number[]) {
-  return a[0]*b[0] + a[1]*b[1] + a[2]*b[2];
+  return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
 }
 function cross(a: number[], b: number[]) {
   return [
-    a[1]*b[2] - a[2]*b[1],
-    a[2]*b[0] - a[0]*b[2],
-    a[0]*b[1] - a[1]*b[0]
+    a[1] * b[2] - a[2] * b[1],
+    a[2] * b[0] - a[0] * b[2],
+    a[0] * b[1] - a[1] * b[0],
   ];
 }
 function normalize(a: number[]) {
-  const len = Math.sqrt(a[0]*a[0] + a[1]*a[1] + a[2]*a[2]);
-  return [a[0]/len, a[1]/len, a[2]/len];
+  const len = Math.sqrt(a[0] * a[0] + a[1] * a[1] + a[2] * a[2]);
+  return [a[0] / len, a[1] / len, a[2] / len];
 }
 
-const useCanvas = (width: number, height: number, fileContent: string) => {
+const useCanvas = (
+  width: number,
+  height: number,
+  fileContent: string,
+  imgfileContent: any
+) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-// ...existing code...
-// ...existing code...
+  // ...existing code...
+  // ...existing code...
   useEffect(() => {
     let objInstance = new Obj(fileContent);
     const projectionMat = [
@@ -68,13 +73,56 @@ const useCanvas = (width: number, height: number, fileContent: string) => {
     const image = ctx.createImageData(W, H);
     const data = image.data;
 
-    // 2D 边函数与重心坐标
-    const edge = (ax: number, ay: number, bx: number, by: number, cx: number, cy: number) =>
-      (cx - ax) * (by - ay) - (cy - ay) * (bx - ax);
+    // 纹理准备（将传入的图片转为像素数据）
+    let texW = 0,
+      texH = 0,
+      texData: Uint8ClampedArray | null = null;
+    if (imgfileContent) {
+      try {
+        const texCanvas = document.createElement("canvas");
+        const maybeW =
+          (imgfileContent as any).naturalWidth || (imgfileContent as any).width;
+        const maybeH =
+          (imgfileContent as any).naturalHeight ||
+          (imgfileContent as any).height;
+        if (maybeW && maybeH) {
+          texW = Math.floor(maybeW);
+          texH = Math.floor(maybeH);
+          texCanvas.width = texW;
+          texCanvas.height = texH;
+          const texCtx = texCanvas.getContext("2d");
+          if (texCtx) {
+            texCtx.drawImage(imgfileContent, 0, 0, texW, texH);
+            texData = texCtx.getImageData(0, 0, texW, texH).data;
+          }
+        }
+      } catch (e) {
+        // 忽略纹理准备失败，退回无纹理渲染
+        texW = texH = 0;
+        texData = null;
+      }
+    }
 
-    const setPixel = (x: number, y: number, r: number, g: number, b: number, a = 255) => {
-      const idx = ((y * W) + x) << 2;
-      data[idx    ] = r | 0;
+    // 2D 边函数与重心坐标
+    const edge = (
+      ax: number,
+      ay: number,
+      bx: number,
+      by: number,
+      cx: number,
+      cy: number
+    ) => (cx - ax) * (by - ay) - (cy - ay) * (bx - ax);
+
+    const setPixel = (
+      x: number,
+      y: number,
+      r: number,
+      g: number,
+      b: number,
+      a = 255
+    ) => {
+      const idx = (y * W + x) << 2;
+      data[idx] = r | 0;
       data[idx + 1] = g | 0;
       data[idx + 2] = b | 0;
       data[idx + 3] = a | 0;
@@ -91,15 +139,17 @@ const useCanvas = (width: number, height: number, fileContent: string) => {
       if (!v1 || !v2 || !v3) return;
 
       // 平面法线（用于平坦着色或作为插值缺省）
-      const e1 = [v2[0]-v1[0], v2[1]-v1[1], v2[2]-v1[2]];
-      const e2 = [v3[0]-v1[0], v3[1]-v1[1], v3[2]-v1[2]];
+      const e1 = [v2[0] - v1[0], v2[1] - v1[1], v2[2] - v1[2]];
+      const e2 = [v3[0] - v1[0], v3[1] - v1[1], v3[2] - v1[2]];
       let nFace = cross(e1, e2);
       const nLen = Math.hypot(nFace[0], nFace[1], nFace[2]);
       if (nLen < 1e-6) return; // 退化三角形
-      nFace = [nFace[0]/nLen, nFace[1]/nLen, nFace[2]/nLen];
+      nFace = [nFace[0] / nLen, nFace[1] / nLen, nFace[2] / nLen];
 
       // 顶点法线（Gouraud/Phong 基础）可选
-      let n1: number[] | null = null, n2: number[] | null = null, n3: number[] | null = null;
+      let n1: number[] | null = null,
+        n2: number[] | null = null,
+        n3: number[] | null = null;
       if (face.vn && face.vn.length >= 3 && objInstance.vn) {
         const nn1 = objInstance.vn[face.vn[0]];
         const nn2 = objInstance.vn[face.vn[1]];
@@ -107,9 +157,26 @@ const useCanvas = (width: number, height: number, fileContent: string) => {
         if (nn1 && nn2 && nn3) {
           const norm = (a: number[]) => {
             const l = Math.hypot(a[0], a[1], a[2]) || 1;
-            return [a[0]/l, a[1]/l, a[2]/l];
+            return [a[0] / l, a[1] / l, a[2] / l];
           };
-          n1 = norm(nn1); n2 = norm(nn2); n3 = norm(nn3);
+          n1 = norm(nn1);
+          n2 = norm(nn2);
+          n3 = norm(nn3);
+        }
+      }
+
+      // 纹理坐标（如可用）
+      let t1: [number, number] | null = null,
+        t2: [number, number] | null = null,
+        t3: [number, number] | null = null;
+      if (face.vt && face.vt.length >= 3 && objInstance.vt) {
+        const tt1 = objInstance.vt[face.vt[0]];
+        const tt2 = objInstance.vt[face.vt[1]];
+        const tt3 = objInstance.vt[face.vt[2]];
+        if (tt1 && tt2 && tt3) {
+          t1 = [tt1[0], tt1[1]];
+          t2 = [tt2[0], tt2[1]];
+          t3 = [tt3[0], tt3[1]];
         }
       }
 
@@ -130,7 +197,9 @@ const useCanvas = (width: number, height: number, fileContent: string) => {
       const maxY = Math.min(H - 1, Math.ceil(Math.max(p1[1], p2[1], p3[1])));
 
       // 顶点深度
-      const z1 = v1[2], z2 = v2[2], z3 = v3[2];
+      const z1 = v1[2],
+        z2 = v2[2],
+        z3 = v3[2];
 
       for (let y = minY; y <= maxY; y++) {
         // 像素中心采样
@@ -144,29 +213,53 @@ const useCanvas = (width: number, height: number, fileContent: string) => {
           const w3 = edge(p1[0], p1[1], p2[0], p2[1], px, py) / area;
 
           // 点在三角形内（同号或包含边）
-          if (w1 >= 0 && w2 >= 0 && w3 >= 0 || w1 <= 0 && w2 <= 0 && w3 <= 0) {
+          if (
+            (w1 >= 0 && w2 >= 0 && w3 >= 0) ||
+            (w1 <= 0 && w2 <= 0 && w3 <= 0)
+          ) {
             // 插值深度
-            const z = w1*z1 + w2*z2 + w3*z3;
-            const zIdx = (y * W) + x;
+            const z = w1 * z1 + w2 * z2 + w3 * z3;
+            const zIdx = y * W + x;
             if (z > zBuffer[zIdx]) {
               zBuffer[zIdx] = z;
 
               // 法线：优先插值顶点法线，否则用面法线
               let n = nFace;
               if (n1 && n2 && n3) {
-                const nx = w1*n1[0] + w2*n2[0] + w3*n3[0];
-                const ny = w1*n1[1] + w2*n2[1] + w3*n3[1];
-                const nz = w1*n1[2] + w2*n2[2] + w3*n3[2];
+                const nx = w1 * n1[0] + w2 * n2[0] + w3 * n3[0];
+                const ny = w1 * n1[1] + w2 * n2[1] + w3 * n3[1];
+                const nz = w1 * n1[2] + w2 * n2[2] + w3 * n3[2];
                 const nl = Math.hypot(nx, ny, nz) || 1;
-                n = [nx/nl, ny/nl, nz/nl];
+                n = [nx / nl, ny / nl, nz / nl];
               }
 
               // 漫反射 + 环境光
               const ndotl = Math.max(0, dot(n, lightDir));
               const brightness = AMBIENT + (1 - AMBIENT) * ndotl;
-              const g = (255 * brightness) | 0;
 
-              setPixel(x, y, g, g, g, 255);
+              // 如果有纹理，采样纹理并乘以亮度；否则灰度
+              if (texData && t1 && t2 && t3 && texW > 0 && texH > 0) {
+                let u = w1 * t1[0] + w2 * t2[0] + w3 * t3[0];
+                let v = w1 * t1[1] + w2 * t2[1] + w3 * t3[1];
+                // 简单 clamp；如果需要可改为 wrap 或 mirror
+                u = Math.max(0, Math.min(1, u));
+                v = Math.max(0, Math.min(1, v));
+                const tx = Math.floor(u * (texW - 1));
+                const ty = Math.floor((1 - v) * (texH - 1)); // 纹理坐标 v 轴反向
+                const tidx = (ty * texW + tx) * 4;
+                let r = texData[tidx];
+                let g = texData[tidx + 1];
+                let b = texData[tidx + 2];
+                const a = texData[tidx + 3];
+                // 应用光照
+                r = (r * brightness) | 0;
+                g = (g * brightness) | 0;
+                b = (b * brightness) | 0;
+                setPixel(x, y, r, g, b, a);
+              } else {
+                const g = (255 * brightness) | 0;
+                setPixel(x, y, g, g, g, 255);
+              }
             }
           }
         }
@@ -175,9 +268,12 @@ const useCanvas = (width: number, height: number, fileContent: string) => {
 
     // 提交像素
     ctx.putImageData(image, 0, 0);
-  }, [fileContent, width, height]);
-// ...existing code...
-// ...existing code...
+  }, [fileContent, width, height, imgfileContent]);
+  // ...existing code...
+  useEffect(() => {
+    if (!imgfileContent) return;
+  }, [imgfileContent]);
+  // ...existing code...
 
   return canvasRef;
 };
