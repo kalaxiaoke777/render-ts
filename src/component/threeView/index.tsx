@@ -2,9 +2,17 @@ import React, { useRef, useEffect } from "react";
 import style from "./index.module.css";
 import * as THREE from "three";
 import { OrbitControls } from "three-stdlib";
+interface MyGPUProps {
+  fileContent: string;
+  imgfileContent: any;
+}
 
-const GPU = () => {
+const GPU: React.FC<MyGPUProps> = ({ fileContent, imgfileContent }) => {
   const mountRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    console.log(fileContent, imgfileContent);
+  }, [fileContent, imgfileContent]);
 
   useEffect(() => {
     // 创建场景
@@ -35,6 +43,7 @@ const GPU = () => {
     const cube = new THREE.Mesh(geometry, material);
     scene.add(cube);
 
+    renderer.render(scene, camera);
     // 动画循环
     const animate = () => {
       requestAnimationFrame(animate);

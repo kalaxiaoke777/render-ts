@@ -12,12 +12,12 @@ const items = [
   },
   {
     key: "2",
-    label: "WebGL",
+    label: "canvas",
     href: "/webgl",
   },
   {
     key: "3",
-    label: "WebGPU",
+    label: "three",
     href: "/webgpu",
   },
 ];
