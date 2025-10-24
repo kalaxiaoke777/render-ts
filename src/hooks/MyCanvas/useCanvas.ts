@@ -269,11 +269,6 @@ const useCanvas = (
     // 提交像素
     ctx.putImageData(image, 0, 0);
   }, [fileContent, width, height, imgfileContent]);
-  // ...existing code...
-  useEffect(() => {
-    if (!imgfileContent) return;
-  }, [imgfileContent]);
-  // ...existing code...
 
   return canvasRef;
 };

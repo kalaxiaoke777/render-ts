@@ -20,6 +20,11 @@ const items = [
     label: "three",
     href: "/webgpu",
   },
+  {
+    key: "4",
+    label: "badylon",
+    href: "/badylon",
+  },
 ];
 
 const App: React.FC = () => {
