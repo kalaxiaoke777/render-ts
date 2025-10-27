@@ -11,7 +11,7 @@ const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
 );
 root.render(
-  <BrowserRouter>
+  <BrowserRouter basename="/web">
     <Routes>
       <Route path="/" element={<View />}>
         <Route index element={<div>欢迎来到首页</div>} />
