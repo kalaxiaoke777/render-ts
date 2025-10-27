@@ -6,10 +6,16 @@ interface MyCanavsProps {
   width: number;
   height: number;
   fileContent: string;
+  imgfileContent: any;
 }
 
-const MyCanavs: React.FC<MyCanavsProps> = ({ width, height, fileContent }) => {
-  const canvasRef = useCanvas(width, height, fileContent);
+const MyCanavs: React.FC<MyCanavsProps> = ({
+  width,
+  height,
+  fileContent,
+  imgfileContent,
+}) => {
+  const canvasRef = useCanvas(width, height, fileContent, imgfileContent);
   return <canvas ref={canvasRef} className={styles.webgl} id="webgl"></canvas>;
 };
 export default MyCanavs;

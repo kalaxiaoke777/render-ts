@@ -4,10 +4,18 @@ import type { UploadFile, UploadProps } from "antd";
 import { Button, Upload } from "antd";
 import styles from "./index.module.scss";
 interface InputFileProps {
-  setFileContent: (content: string) => void;
+  setFileContent: (content: any) => void;
+  buttonText?: string;
+  _styles?: React.CSSProperties;
+  fileType: string;
 }
 
-const InputFile: React.FC<InputFileProps> = ({ setFileContent }) => {
+const InputFile: React.FC<InputFileProps> = ({
+  setFileContent,
+  buttonText,
+  _styles,
+  fileType = ".obj",
+}) => {
   const upload = (file: any) => {
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -18,16 +26,22 @@ const InputFile: React.FC<InputFileProps> = ({ setFileContent }) => {
     // 阻止自动上传
     return false;
   };
+  const uploadImg = (file: any) => {
+    const img = new window.Image();
+    img.src = URL.createObjectURL(file);
+    img.onload = () => setFileContent(img);
+    return false;
+  };
 
   const props = {
     multiple: true,
-    accept: ".obj",
-    beforeUpload: upload,
+    accept: fileType,
+    beforeUpload: fileType === ".obj" ? upload : uploadImg,
   };
   return (
-    <Upload className={styles.input} {...props}>
+    <Upload className={styles.input} {...props} style={_styles}>
       <Button color="cyan" icon={<UploadOutlined />}>
-        上传
+        {buttonText || "上传文件"}
       </Button>
     </Upload>
   );

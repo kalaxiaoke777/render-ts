@@ -8,6 +8,9 @@ const WebGL = () => {
   const [size, setSize] = useState({ width: 600, height: 600 });
   const [showCanvas, setShowCanvas] = useState(false);
   const [fileContent, setFileContent] = useState<string>("");
+  const [imgfileContent, setImgFileContent] = useState<HTMLImageElement | null>(
+    null
+  );
 
   useEffect(() => {
     const handleResize = () => {
@@ -28,11 +31,23 @@ const WebGL = () => {
 
   return (
     <div ref={canvasRef} className={styles.app}>
-      <InputFile setFileContent={setFileContent} />
+      <InputFile
+        setFileContent={setFileContent}
+        buttonText="上传模型"
+        fileType=".obj"
+      />
+
+      <InputFile
+        _styles={{ position: "fixed", right: 12 }}
+        setFileContent={setImgFileContent}
+        buttonText="上传材质"
+        fileType=".png,.jpg,.jpeg"
+      />
       <MyCanavs
         width={size.width - 5}
         height={size.height - 8}
         fileContent={fileContent}
+        imgfileContent={imgfileContent}
       />
     </div>
   );
