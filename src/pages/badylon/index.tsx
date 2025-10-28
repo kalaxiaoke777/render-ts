@@ -31,14 +31,21 @@ const Badylon = () => {
       scene
     );
 
-    // 创建一个球体
-    const sphere = BABYLON.MeshBuilder.CreateSphere(
-      "sphere",
-      { diameter: 1 },
+    var myPoints = [
+      new BABYLON.Vector3(0, 0, 0),
+      new BABYLON.Vector3(0, 1, 1),
+      new BABYLON.Vector3(0, 1, 0),
+    ];
+
+    var lines = BABYLON.MeshBuilder.CreateLines(
+      "lines",
+      { points: myPoints },
       scene
     );
+    lines.color = new BABYLON.Color3(1, 0, 0);
 
-    // 渲染循环
+    lines.rotation.y = 13;
+
     engine.runRenderLoop(() => {
       scene.render();
     });
