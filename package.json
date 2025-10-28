@@ -46,6 +46,7 @@
       "last 1 safari version"
     ]
   },
+  "homepage": "/web/",
   "devDependencies": {
     "@craco/craco": "^7.1.0",
     "@types/three": "^0.180.0",
